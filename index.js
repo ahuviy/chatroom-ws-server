@@ -32,7 +32,8 @@ wss.on("connection", (ws, req) => {
       return ws.send(receivedBadMsgError);
     }
 
-    wss.clients.forEach(function each(client) {
+    // Broadcast the message to all connected clients.
+    wss.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
         msg.timestamp = Date.now();
         const broadcasted = JSON.stringify(msg);
