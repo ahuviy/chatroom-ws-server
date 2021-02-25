@@ -1,4 +1,4 @@
-const { tryParseJSON } = require("./utils");
+const { tryParseJSON, receivedBadMsgError } = require("./utils");
 const port = 8080;
 const WebSocket = require("ws");
 
@@ -6,17 +6,38 @@ const wss = new WebSocket.Server({ port }, () => {
   console.log("ws server is listening on port", port);
 });
 
-wss.on("connection", (ws) => {
-  console.log("connected");
+wss.on("connection", (ws, req) => {
+  const ip = req.headers["x-forwarded-for"]
+    ? req.headers["x-forwarded-for"].split(/\s*,\s*/)[0]
+    : req.socket.remoteAddress;
+  console.log("connected to:", ip);
+
   ws.on("message", (data) => {
     if (typeof data !== "string") {
-      return console.log("server not handling non-string data");
+      console.warn("received bad message:", ip, data);
+      return ws.send(receivedBadMsgError);
     }
-    console.log("incoming message:", tryParseJSON(data));
+
+    const msg = tryParseJSON(data);
+    console.log("incoming message:", ip, msg);
+
+    const isValidTextMsg =
+      msg &&
+      typeof msg === "object" &&
+      msg.type === "TEXT_MSG" &&
+      typeof msg.sender === "string";
+
+    if (!isValidTextMsg) {
+      console.warn("received bad message:", ip, data);
+      return ws.send(receivedBadMsgError);
+    }
+
     wss.clients.forEach(function each(client) {
       if (client.readyState === WebSocket.OPEN) {
-        console.log("sending", data);
-        client.send(data);
+        msg.timestamp = Date.now();
+        const broadcasted = JSON.stringify(msg);
+        console.log("broadcasting message:", broadcasted);
+        client.send(broadcasted);
       }
     });
   });
