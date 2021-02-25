@@ -1,5 +1,5 @@
 const { tryParseJSON, receivedBadMsgError } = require("./utils");
-const port = 8080;
+const port = process.env.PORT || 8080;
 const WebSocket = require("ws");
 
 const wss = new WebSocket.Server({ port }, () => {
