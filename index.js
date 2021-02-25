@@ -6,8 +6,6 @@ const wss = new WebSocket.Server({ port }, () => {
   console.log("ws server is listening on port", port);
 });
 
-console.log("num clients:", wss.clients.size);
-
 wss.on("connection", (ws) => {
   console.log("connected");
   ws.on("message", (data) => {
