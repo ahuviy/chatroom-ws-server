@@ -1,0 +1,17 @@
+{
+  "name": "ws-server",
+  "version": "1.0.0",
+  "description": "websocket server implementing a chat-room app",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index",
+    "test": ""
+  },
+  "keywords": [],
+  "author": "Ahuvi Yearim",
+  "license": "ISC",
+  "dependencies": {
+    "nodemon": "^2.0.7",
+    "ws": "^7.4.3"
+  }
+}
